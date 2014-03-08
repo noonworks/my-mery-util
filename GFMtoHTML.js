@@ -100,6 +100,9 @@ MERYGFMTOHTML.run = function(file_path, file_charset, output_path) {
         ' -o "' + output_path + '"' +
         ' --header "' + header_file + '"' +
         ' --footer "' + footer_file + '"';
+    if (MERYGFMTOHTML.access_token.length > 0) {
+        cmd = cmd + ' -t ' + MERYGFMTOHTML.access_token;
+    }
     MERYGFMTOHTML.shell.Run(cmd, 0, true);
     var i = 0;
     while (! MERYGFMTOHTML.fso.FileExists(output_path)) {
@@ -121,6 +124,9 @@ MERYGFMTOHTML.getAPIRateLimit = function() {
     var temp_file = MERYGFMTOHTML.getTemporaryFilePath();
     var cmd = 'cscript //nologo "' +
         MERYGFMTOHTML.getGFMtoHTMLjsPath() + '" -l -o "' + temp_file + '"';
+    if (MERYGFMTOHTML.access_token.length > 0) {
+        cmd = cmd + ' -t ' + MERYGFMTOHTML.access_token;
+    }
     MERYGFMTOHTML.shell.Run(cmd, 0, true);
     var i = 0;
     while (! MERYGFMTOHTML.fso.FileExists(temp_file)) {
