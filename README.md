@@ -16,6 +16,29 @@ is simple and powerful text editor for Windows written by [Kuro](https://github.
 は [Kuro](https://github.com/haijinboys) 氏によるWindows用のシンプルで多機能なテキストエディタです。
 
 
+toStart.js
+---------------
+Go to the start of line.
+
+行頭に移動します。
+
+### options
+| option            | If true then |
+|-------------------|--------------|
+| go_prev_line      | If already in the start of line, go to the end of the previous line. |
+| view_line         | Stop at the start of the view-line. |
+| view_line_indent  | Stop at the end of indents of the view-line. |
+
+### オプション
+| オプション        | true のとき  |
+|-------------------|--------------|
+| go_prev_line      | すでに行頭にいた場合、前の行の行末へ移動する |
+| view_line         | 折り返し行（表示行）の先頭で止まる |
+| view_line_indent  | 折り返し行（表示行）のインデントの場所で止まる |
+
+![options](images/toStart.png)
+
+
 toEnd.js
 ---------------
 Go to the end of line. If already in the end of line, go to the end of next line.
