@@ -29,21 +29,21 @@ var indent = /^[ 　\t]+/;   // インデントの定義
         return;
     }
     var toX_v = null;
-    var toY_v = null;
-    if (view_line && (posY_v > posY_l)) {
+    var line_l = Document.GetLine(posY_l, 0);
+    var line_v = Document.GetLine(posY_v, meGetLineView);
+    if (view_line && (line_l != line_v)) {
         if (posX_v > 1) {
-            toX_v = getToXView(Document.GetLine(posY_v, meGetLineView), posX_v, (!view_line_indent));
-            toY_v = posY_v;
+            toX_v = getToXView(line_v, posX_v, (!view_line_indent));
+            sel.SetActivePoint(mePosView, toX_v, posY_v, selecting_now);
         } else if (posY_v - posY_l > 1) {
             toX_v = getToXView(Document.GetLine(posY_v - 1, meGetLineView), 9999, (!view_line_indent));
-            toY_v = posY_v - 1;
+            sel.SetActivePoint(mePosView, toX_v, posY_v - 1, selecting_now);
         }
     }
     if (toX_v === null) {
-        toY_v = posY_l;
-        var m = Document.GetLine(posY_l).match(indent);
+        var m = line_l.match(indent);
         toX_v = (m === null) ? 1 : (1 + m.lastIndex);
         if (toX_v >= posX_l) toX_v = 1;
+        sel.SetActivePoint(mePosLogical, toX_v, posY_l, selecting_now);
     }
-    sel.SetActivePoint(mePosView, toX_v, toY_v, selecting_now);
 })();
