@@ -16,6 +16,13 @@ is simple and powerful text editor for Windows written by [Kuro](https://github.
 は [Kuro](https://github.com/haijinboys) 氏によるWindows用のシンプルで多機能なテキストエディタです。
 
 
+toEnd.js
+---------------
+Go to the end of line. If already in the end of line, go to the end of next line.
+
+行末に移動します。すでに行末だった場合は、次の行の行末に移動します。
+
+
 GFMtoHTML.js
 ---------------
 
