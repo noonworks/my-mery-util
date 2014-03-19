@@ -20,6 +20,15 @@ MERYGFMTOHTML.shell = new ActiveXObject('WScript.Shell');
 MERYGFMTOHTML.fso = new ActiveXObject('Scripting.FileSystemObject');
 MERYGFMTOHTML.isOnMery = (typeof Editors !== 'undefined');
 MERYGFMTOHTML.isOnWScript = (typeof WScript !== 'undefined');
+if (MERYGFMTOHTML.access_token.length === 0) {
+    var token_file = MERYGFMTOHTML.fso.BuildPath(
+        MERYGFMTOHTML.fso.GetParentFolderName(ScriptFullName), 'GFMtoHTML.token');
+    if (MERYGFMTOHTML.fso.FileExists(token_file)) {
+        var f = MERYGFMTOHTML.fso.OpenTextFile(token_file, 1); // 1=ForReading
+        MERYGFMTOHTML.access_token = f.ReadLine();
+        f.Close();
+    }
+}
 
 // http://msdn.microsoft.com/en-us/library/aa288104.aspx
 MERYGFMTOHTML.getEncodingName = function(encoding_id) {
