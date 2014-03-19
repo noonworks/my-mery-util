@@ -46,6 +46,39 @@ Go to the end of line. If already in the end of line, go to the end of next line
 行末に移動します。すでに行末だった場合は、次の行の行末に移動します。
 
 
+NLauncher.js
+---------------
+
+It is a launcher macro that opens URL or file or explorer etc. by selected text. 
+If no text is select, it reads the word around the caret.
+
+選択した文字列からURLやファイルやエクスプローラを開いたりできるランチャマクロです。
+文字列を選択していなくても、付近の単語などを読み取ります。
+
+### Require / 必要なファイル
+- Selector.js
+- Launcher.js
+- MenuBuilder.js
+- [ShowPopupMenu.js](http://www.haijin-boys.com/wiki/%E3%83%9D%E3%83%83%E3%83%97%E3%82%A2%E3%83%83%E3%83%97%E3%83%A1%E3%83%8B%E3%83%A5%E3%83%BC%E3%82%92%E6%89%8B%E8%BB%BD%E3%81%AB%E6%89%B1%E3%81%86)
+
+### Feature / 機能
+- open as URL / URLを開く
+- as Path / パスとして処理する
+  - open in Mery / Meryで開く
+  - open in associated program / 関連付けされたプログラムで開く
+  - open in explorer / エクスプローラで開く
+  - open in command prompt / コマンドプロンプトで開く
+  - open parent folder in explorer / 親フォルダをエクスプローラで開く
+  - open parent folder in command prompt / 親フォルダをコマンドプロンプトで開く
+  - create file or folder / ファイルもしくはフォルダを作る
+  - create parent folder / 親フォルダを作る
+- as String / 文字列として処理する
+  - search forward or backforward / 前もしくは後ろへ検索する
+  - search in Google / Googleで検索する
+  - translate in GoogleTranslate / Google翻訳で翻訳する
+  - search in Wikipedia / Wikipediaで検索する
+
+
 GFMtoHTML.js
 ---------------
 
