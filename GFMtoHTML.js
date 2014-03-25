@@ -3,8 +3,24 @@
 if (typeof MERYGFMTOHTML === 'undefined') var MERYGFMTOHTML = {};
 
 // ==================================================================
+// use_temporary option (default:false)
+//  true:  output path is `%TEMP%/(Document.Name).GFMtoHTML.html`.
+//  false: output path is `(Document.Path)/(Document.Name).GFMtoHTML.html`.
+// ==================================================================
+MERYGFMTOHTML.use_temporary = false;
+
+// ==================================================================
+// auto_delete option (default:false)
+//  * If you use WebPreview plugin, set this option to false. *
+//  true:  delete file after open output HTML file.
+//  false: do nothing.
+// ==================================================================
+MERYGFMTOHTML.auto_delete = false;
+
+// ==================================================================
 // If you have a 'Personal access token' for GitHub API,
 // set it to variable access_token.
+// Or set the value to `(ScriptFullPath)/GFMtoHTML.token` file.
 // You can get Personal access tokens on
 // [ https://github.com/settings/applications ].
 //  * If you set access token, you can use API 5,000 times per hour.
@@ -152,6 +168,16 @@ MERYGFMTOHTML.getAPIRateLimit = function() {
     return api_rate_limit;
 };
 
+MERYGFMTOHTML.getTemporaryPath = function() {
+    var fso = MERYGFMTOHTML.fso;
+    var tmp = fso.GetSpecialFolder(2); // TemporaryFolder
+    var path = fso.BuildPath(tmp, Document.Name + '.GFMtoHTML.html');
+    if (fso.FolderExists(path)) {
+        fso.DeleteFolder(path);
+    }
+    return path;
+};
+
 MERYGFMTOHTML.main = function() {
     if (!Document.Saved) {
         var ret = Confirm('保存しますか？');
@@ -170,6 +196,9 @@ MERYGFMTOHTML.main = function() {
     }
     var file_charset = MERYGFMTOHTML.getEncoding();
     var output_path = file_path + '.GFMtoHTML.html';
+    if (MERYGFMTOHTML.use_temporary) {
+        output_path = MERYGFMTOHTML.getTemporaryPath();
+    }
     MERYGFMTOHTML.showStatus('GFMtoHTML: Rendering ...');
     var ret = MERYGFMTOHTML.run(file_path, file_charset, output_path);
     if (ret.length > 0) {
@@ -179,6 +208,9 @@ MERYGFMTOHTML.main = function() {
     Editor.OpenFile(output_path, meEncodingUTF8WithoutSignature, meOpenAllowNewWindow);
     var rate_limit = MERYGFMTOHTML.getAPIRateLimit();
     Status = 'GFMtoHTML: ' + rate_limit;
+    if (MERYGFMTOHTML.auto_delete && MERYGFMTOHTML.fso.FileExists(output_path)) {
+        MERYGFMTOHTML.fso.DeleteFile(output_path);
+    }
 };
 
 MERYGFMTOHTML.main();
