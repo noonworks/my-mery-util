@@ -56,6 +56,8 @@ If no text is select, it reads the word around the caret.
 文字列を選択していなくても、付近の単語などを読み取ります。
 
 ### Require / 必要なファイル
+- FileSystemObject.js
+- String.js
 - Selector.js
 - Launcher.js
 - MenuBuilder.js
