@@ -6,6 +6,7 @@ if (typeof Noonworks.MenuBuilder === 'undefined') {
         var need_sep = false;
         this.menu = {};
         this.count = 0;
+        this._pre_count = 0;
         this.addItem = function(name, item) {
             if (item === null) {
                 return false;
@@ -29,6 +30,11 @@ if (typeof Noonworks.MenuBuilder === 'undefined') {
         };
         this.minify = function(str, num) {
             return Noonworks.MenuBuilder.minifyString(str, num);
+        };
+        this.isGrown = function() {
+            var ret = (this._pre_count < this.count);
+            this._pre_count = this.count;
+            return ret;
         };
     };
     Noonworks.MenuBuilder.minifyString = function(str, num) {
