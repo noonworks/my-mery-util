@@ -3,40 +3,36 @@
 #include "Launcher.js"
 #include "MenuBuilder.js"
 #include "ShowPopupMenu.js"
- 
+
 (function(){
     Status = '';
     var URL_MINIFY_LEN = 30;
     var PATH_MINIFY_LEN = 40;
     var WORD_MINIFY_LEN = 50;
     var alp = /^[a-zA-Z0-9 \t　\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~]*$/;
-    
-    var sel = Noonworks.Selector.getSelectionInfo();
-    //alert(Noonworks.Selector.dumpSelectionInfo(sel));
+    var sel = new Noonworks.Selector();
+    //alert(sel.dump());
     var lnc = new Noonworks.Launcher();
     var mb = new Noonworks.MenuBuilder();
     
     // open url
-    var items = new Array(sel.url, sel.url_raw);
-    for (var i = 0; i < items.length; i++) {
-        if (items[i].length > 0) {
-            with({ item:items[i] }) {
-                mb.addItem('URLを開く[' + mb.minify(item, URL_MINIFY_LEN) + ']',
-                    function(){ lnc.openUrl(item) });
-            } // end with scope
-        }
+    for (var i = 0; i < sel.urls.length; i++) {
+        with({ item:sel.urls[i] }) {
+            mb.addItem('URLを開く[' + mb.minify(item, URL_MINIFY_LEN) + ']',
+                function(){ lnc.openUrl(item) });
+        } // end with scope
     }
     mb.need_sep = mb.isGrown();
     
     // open path menu
-    items = (mb.count > 0) ? new Array() : new Array(sel.path, sel.path_raw);
+    items = (mb.count > 0) ? new Array() : sel.pathes;
     for (var i = 0; i < items.length; i++) {
         if (items[i].length == 0) {
             continue;
         }
         var submb = new Noonworks.MenuBuilder();
         with({ item : items[i],
-               p : Noonworks.Selector.getPathInfo(items[i]) }) {
+               p : new Noonworks.PathInfo(items[i]) }) {
             // open if exists
             if (p.isExist) {
                 if (p.isDir) {
@@ -109,23 +105,13 @@
     mb.need_sep = mb.isGrown();
     
     // keyword menu
-    items = new Array(sel.sel, sel.d_quoted, sel.s_quoted,
-        sel.word, sel.word_c, sel.sentence);
-    var inserted = new Array();
+    items = sel.words;
     for (var i = 0; i < items.length; i++) {
-        var item = items[i];
-        for (var j = 0; j < inserted.length; j++) {
-            if (inserted[j] === item) {
-                item = '';
-                break;
-            }
-        }
-        if (item.length == 0) {
+        if (items[i].length == 0) {
             continue;
         }
-        inserted.push(item);
         var submb = new Noonworks.MenuBuilder();
-        with({ item:item }) {
+        with({ item:items[i] }) {
             submb.addItem('前を検索', function(){ lnc.search(item, false) });
             submb.addItem('次を検索', function(){ lnc.search(item, true) });
             submb.addSep();
@@ -140,7 +126,7 @@
             submb.addSep();
             submb.addItem('Wikipediaで検索', function(){ lnc.searchWikipedia(item) });
         } // end with scope
-        mb.addItem(mb.minify(item, WORD_MINIFY_LEN), submb.menu);
+        mb.addItem(mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
     }
     
     // show
