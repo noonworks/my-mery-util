@@ -72,5 +72,11 @@ Noonworks.Launcher.prototype = {
     openGoogleTranslateEnToJa: function(str) {
         var url = 'https://translate.google.co.jp/#en/ja/' + encodeURI(str);
         this.openUrl(url);
+    },
+    
+    copyToClipboard: function(str) {
+        if (str.replace(/\n/g, '').length > 0) {
+            ClipboardData.SetData(str);
+        }
     }
 };
