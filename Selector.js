@@ -26,7 +26,14 @@ Noonworks.Selector = function(){
     this.posX_l = sl.GetActivePointX(mePosLogical);
     this.posY_l = sl.GetActivePointY(mePosLogical);
     this.line = Document.GetLine(this.posY_l, 0).replace('\n', '');
-    this.sel = sl.IsEmpty ? '' : sl.Text;
+    if (sl.IsEmpty) {
+        sl.SelectWord();
+        this.sel = sl.Text;
+        sl.Collapse();
+        sl.SetActivePoint(mePosLogical, this.posX_l, this.posY_l);
+    } else {
+        this.sel = sl.Text;
+    }
     var line = new Noonworks.String(this.line);
     // 文、単語
     this.words = new Noonworks.UniqueArray();
