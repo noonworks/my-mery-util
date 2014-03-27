@@ -106,12 +106,25 @@
     
     // keyword menu
     items = sel.words;
+    var line_s = new Noonworks.String(sel.line);
     for (var i = 0; i < items.length; i++) {
         if (items[i].length == 0) {
             continue;
         }
+        var i_start = line_s.curIndexOf(sel.posX_l, items[i]);
+        var i_end = i_start + items[i].length;
         var submb = new Noonworks.MenuBuilder();
-        with({ item:items[i] }) {
+        with({ item:items[i], i_start:i_start, i_end:i_end, posY_l:sel.posY_l }) {
+            if (sel.sel !== items[i]) {
+                submb.addItem('選択', function(){ lnc.select(i_start, i_end, posY_l); });
+            }
+            if (ClipboardData.GetData().length > 0) {
+                submb.addItem('クリップボードからここに貼り付け', function(){
+                    lnc.pasteClipboard(i_start, i_end, posY_l);
+                });
+            }
+            submb.addItem('コピー', function(){ lnc.copyToClipboard(item) });
+            submb.addSep();
             submb.addItem('前を検索', function(){ lnc.search(item, false) });
             submb.addItem('次を検索', function(){ lnc.search(item, true) });
             submb.addSep();
@@ -126,7 +139,8 @@
             submb.addSep();
             submb.addItem('Wikipediaで検索', function(){ lnc.searchWikipedia(item) });
         } // end with scope
-        mb.addItem('(' + items[i].length + '文字) ' + mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
+        mb.addItem('(' + items[i].length + '文字) '
+            + mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
     }
     
     // show

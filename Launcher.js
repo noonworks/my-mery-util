@@ -78,5 +78,21 @@ Noonworks.Launcher.prototype = {
         if (str.replace(/\n/g, '').length > 0) {
             ClipboardData.SetData(str);
         }
+    },
+    
+    select: function(i_start, i_end, posY_l) {
+        Document.Selection.Collapse();
+        Document.Selection.SetActivePoint(mePosLogical, i_start + 1, posY_l, false);
+        Document.Selection.SetActivePoint(mePosLogical, i_end + 1, posY_l, true);
+    },
+    
+    paste: function(i_start, i_end, posY_l, str) {
+        this.select(i_start, i_end, posY_l);
+        Document.Selection.Delete();
+        Document.Write(str);
+    },
+    
+    pasteClipboard: function(i_start, i_end, posY_l) {
+        this.paste(i_start, i_end, posY_l, ClipboardData.getData());
     }
 };
