@@ -278,4 +278,8 @@
     assert(10,  s.pickupIndexOf(28, arr2));
     assert(-1,  s.pickupIndexOf(29, arr2));
     assert(-1,  s.pickupIndexOf(30, arr2));
+
+    s = new Noonworks.String('My Mery utilities.');
+    var r = /[\.\?\!]\s|[\t\n。！？\"]/;
+    assert('My Mery utilities.', s.pickup(12, r, r, false).toString());
 })();

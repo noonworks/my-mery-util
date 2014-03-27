@@ -162,7 +162,7 @@ Noonworks.String.prototype.stripRegex = function(r_start, r_end) {
 };
 
 Noonworks.String.prototype.pickup = function(index, r_start, r_end, quoted) {
-    quoted = (typeof quoted === 'undefined') ? false : true;
+    quoted = (typeof quoted === 'undefined') ? false : quoted;
     index = (index < 0) ? this._s.length + index : index;
     if (this._s.length < index || index < 0) {
         return new Noonworks.String('');
