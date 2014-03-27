@@ -5,6 +5,8 @@ Noonworks.MenuBuilder = function(){
     this.menu = {};
     this.count = 0;
     this._pre_count = 0;
+    this.names = new Array();
+    this.isSeparator = {};
 };
 
 Noonworks.MenuBuilder.prototype = {
@@ -28,6 +30,8 @@ Noonworks.MenuBuilder.prototype = {
             i++;
         }
         this.menu[menu_name] = item;
+        this.isSeparator[menu_name] = false;
+        this.names.push(menu_name);
         this.count++;
         return true;
     },
@@ -38,6 +42,8 @@ Noonworks.MenuBuilder.prototype = {
             menu_name = this._randomSepString();
         }
         this.menu[menu_name] = 'sep';
+        this.isSeparator[menu_name] = true;
+        this.names.push(menu_name);
     },
     
     minify: function(str, num) {
