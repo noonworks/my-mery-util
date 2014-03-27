@@ -8,7 +8,7 @@
     Status = '';
     var URL_MINIFY_LEN = 30;
     var PATH_MINIFY_LEN = 40;
-    var WORD_MINIFY_LEN = 50;
+    var WORD_MINIFY_LEN = 30;
     var alp = /^[a-zA-Z0-9 \t　\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~]*$/;
     var sel = new Noonworks.Selector();
     //alert(sel.dump());
@@ -97,7 +97,7 @@
             }
             // add submenu
             if (submb.count > 0) {
-                var prefix = p.isFile ? 'ファイル: ' : 'フォルダ: ';
+                var prefix = p.isFile ? 'File: ' : 'Dir: ';
                 mb.addItem(prefix + mb.minify(item, PATH_MINIFY_LEN), submb.menu);
             }
         } // end with scope
@@ -126,7 +126,7 @@
             submb.addSep();
             submb.addItem('Wikipediaで検索', function(){ lnc.searchWikipedia(item) });
         } // end with scope
-        mb.addItem(mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
+        mb.addItem('(' + items[i].length + '文字) ' + mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
     }
     
     // show
