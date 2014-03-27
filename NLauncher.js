@@ -143,6 +143,12 @@
             + mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
     }
     
+    mb.addSep();
+    mb.addItem('このファイルのあるフォルダをエクスプローラで開く',
+        function(){ lnc.openExplorer(Document.Path) });
+    mb.addItem('このファイルのあるフォルダでコマンドプロンプトを開く',
+        function(){ lnc.openCmd(Document.Path) });
+    
     // show
     if (mb.count > 0) {
         ShowPopupMenu(mb.menu);
