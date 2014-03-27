@@ -282,4 +282,20 @@
     s = new Noonworks.String('My Mery utilities.');
     var r = /[\.\?\!]\s|[\t\n。！？\"]/;
     assert('My Mery utilities.', s.pickup(12, r, r, false).toString());
+
+    var s = new Noonworks.String('abc abc abc abc');
+    assert(0,  s.curIndexOf(0, 'abc'));
+    assert(0,  s.curIndexOf(1, 'abc'));
+    assert(0,  s.curIndexOf(2, 'abc'));
+    assert(0,  s.curIndexOf(3, 'abc'));
+    assert(-1, s.curIndexOf(3, 'cdb'));
+    assert(-1, s.curIndexOf(4, 'cdb'));
+    assert(4,  s.curIndexOf(4, 'abc'));
+    assert(4,  s.curIndexOf(5, 'abc'));
+    assert(4,  s.curIndexOf(6, 'abc'));
+    assert(4,  s.curIndexOf(7, 'abc'));
+    assert(8,  s.curIndexOf(8, 'abc'));
+    assert(8,  s.curIndexOf(9, 'abc'));
+    assert(8,  s.curIndexOf(10, 'abc'));
+    assert(8,  s.curIndexOf(11, 'abc'));
 })();

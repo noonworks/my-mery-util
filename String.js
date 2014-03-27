@@ -212,3 +212,23 @@ Noonworks.String.prototype.pickupIndexOf = function(cur_pos, arr) {
     }
     return -1;
 };
+
+Noonworks.String.prototype.curIndexOf = function(cur_pos, str) {
+    if (this._s.length < str.length || str.length === 0) {
+        return -1;
+    }
+    cur_pos = (cur_pos < 0) ? this._s.length + cur_pos : cur_pos;
+    if (this._s.length < cur_pos || cur_pos < 0) {
+        return -1;
+    }
+    var search_index = (cur_pos <= str.length) ? 0 : cur_pos - str.length;
+    while (true) {
+        var i = this._s.indexOf(str, search_index);
+        if (i < 0 || i > cur_pos) {
+            return -1;
+        }
+        if (i <= cur_pos && (i + str.length) >= cur_pos) {
+            return i;
+        }
+    }
+};
