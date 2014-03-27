@@ -72,15 +72,20 @@ Noonworks.Selector = function(){
     this.urls = this.urls._arr;
     // Path
     this.pathes = new Noonworks.UniqueArray();
+    this.pathes_original = new Array();
     var separators = new Array( // 区切りの定義
         /[\t\<\>\|\/\?\*\n\`\;\=\"]+/,
         /[\t\<\>\|\/\?\*\n\"]+/
     );
     for (var i in separators) {
-        var s = line.pickup(this.posX_l - 1, separators[i]).toString();
-        s = this.fixFilePath(s);
-        if (s.length > 0) {
-            this.pathes.push(s);
+        var org = line.pickup(this.posX_l - 1, separators[i]).toString();
+        var path = this.fixFilePath(org);
+        if (path.length > 0) {
+            var l = this.pathes._arr.length;
+            this.pathes.push(path);
+            if (l < this.pathes._arr.length) {
+                this.pathes_original.push(org);
+            }
         }
     }
     this.pathes = this.pathes._arr;
