@@ -194,18 +194,18 @@ Noonworks.String.prototype.pickup = function(index, r_start, r_end, quoted) {
     return new Noonworks.String(left + right);
 };
 
-Noonworks.String.prototype.pickupIndexOf = function(str_pos, arr) {
-    str_pos = (str_pos < 0) ? this._s.length + str_pos : str_pos;
-    if (this._s.length < str_pos || str_pos < 0) {
+Noonworks.String.prototype.pickupIndexOf = function(cur_pos, arr) {
+    cur_pos = (cur_pos < 0) ? this._s.length + cur_pos : cur_pos;
+    if (this._s.length < cur_pos || cur_pos < 0) {
         return -1;
     }
     var search_index = 0;
     for (var i = 0; i < arr.length; i++) {
         var elem_i = this._s.indexOf(arr[i], search_index);
-        if (elem_i < 0 || elem_i > str_pos) {
+        if (elem_i < 0 || elem_i > cur_pos) {
             return -1;
         }
-        if (elem_i <= str_pos && (elem_i + arr[i].length) >= str_pos) {
+        if (elem_i <= cur_pos && (elem_i + arr[i].length) >= cur_pos) {
             return i;
         }
         search_index = elem_i + arr[i].length;
