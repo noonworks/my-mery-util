@@ -1,5 +1,59 @@
 var Noonworks = Noonworks || {};
 
+Noonworks.IndentString = function(s){
+    this._s = s;
+    this._part = '';
+    if (s.length > 1) {
+        this._part = s.substring(0, 1);
+        for (var i = 1; i < s.length; i++) {
+            if (this._part !== s.substring(i, i + 1)) {
+                this._part = '';
+                break;
+            }
+        }
+    }
+    if (this._part.length === 0) {
+        this._unindent_reg = new RegExp('^' + this._s, 'gim');
+    } else {
+        this._unindent_reg = new RegExp(
+            '^(' + this._part + '{1,' + this._s.length + '})', 'gim');
+    }
+};
+
+Noonworks.IndentString.prototype = {
+    multiply: function(n) {
+        var s = '';
+        for (var i = 0; i < n; i++) {
+            s += this._s;
+        }
+        return s;
+    },
+    
+    indent: function(level, str) {
+        if (level === 0) {
+            return str;
+        }
+        if (level < 0) {
+            return this.unindent(level * -1, str);
+        }
+        var s = this.multiply(level);
+        return s + (str.replace(/\n/g, '\n' + s));
+    },
+    
+    unindent: function(level, str) {
+        if (level === 0) {
+            return str;
+        }
+        if (level < 0) {
+            return this.indent(level * -1, str);
+        }
+        for (var i = 0; i < level; i++) {
+            str = str.replace(this._unindent_reg, '');
+        }
+        return str;
+    }
+};
+
 Noonworks.String = function(s){
     this._s = s;
 };
@@ -9,6 +63,28 @@ Noonworks.String.prototype = new String();
 Noonworks.String.prototype.valueOf =
 Noonworks.String.prototype.toString = function() {
     return this._s.toString();
+};
+
+Noonworks.String.prototype.multiply = function(n) {
+    var s = '';
+    for (var i = 0; i < n; i++) {
+        s += this._s;
+    }
+    return new Noonworks.String(s);
+};
+
+Noonworks.String.prototype.indent = function(level, indent_string) {
+    var i = (typeof indent_string === 'undefined')
+        ? new Noonworks.IndentString('    ')
+        : new Noonworks.IndentString(indent_string);
+    return new Noonworks.String(i.indent(level, this._s));
+};
+
+Noonworks.String.prototype.unindent = function(level, indent_string) {
+    var i = (typeof indent_string === 'undefined')
+        ? new Noonworks.IndentString('    ')
+        : new Noonworks.IndentString(indent_string);
+    return new Noonworks.String(i.unindent(level, this._s));
 };
 
 Noonworks.String.prototype.stripQuote = function(q_start, q_end) {

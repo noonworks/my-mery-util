@@ -159,4 +159,57 @@
     assert('', s.pickup(5, '"', '"', true));
     var s = new Noonworks.String('ABC abc" ABC');
     assert('', s.pickup(5, '"', '"', true));
+    
+    var s = new Noonworks.String('a');
+    assert('a', s.multiply(1));
+    assert('aa', s.multiply(2));
+    assert('aaa', s.multiply(3));
+    assert('', s.multiply(0));
+    assert('', s.multiply(-1));
+    
+    var e4_0 = 'function(){\n    abc;\n    def;\n    if(true){\n        ghi\n    }\n}';
+    var e4_1 = '    function(){\n        abc;\n        def;\n        if(true){\n            ghi\n        }\n    }';
+    var e4_2 = '        function(){\n            abc;\n            def;\n            if(true){\n                ghi\n            }\n        }';
+    var s = new Noonworks.String(e4_0);
+    assert(e4_0, s.indent(0));
+    assert(e4_1, s.indent(1));
+    assert(e4_2, s.indent(2));
+    assert(e4_1, s.unindent(-1));
+    assert(e4_2, s.unindent(-2));
+    
+    var e2_0 = 'function(){\n  abc;\n  def;\n  if(true){\n    ghi\n  }\n}';
+    var e2_1 = '  function(){\n    abc;\n    def;\n    if(true){\n      ghi\n    }\n  }';
+    var e2_2 = '    function(){\n      abc;\n      def;\n      if(true){\n        ghi\n      }\n    }';
+    var s = new Noonworks.String(e2_0);
+    assert(e2_0, s.indent(0, '  '));
+    assert(e2_1, s.indent(1, '  '));
+    assert(e2_2, s.indent(2, '  '));
+    assert(e2_1, s.unindent(-1, '  '));
+    assert(e2_2, s.unindent(-2, '  '));
+    
+    var s = new Noonworks.String(e4_2);
+    assert(e4_2, s.unindent(0));
+    assert(e4_1, s.unindent(1));
+    assert(e4_0, s.unindent(2));
+    assert(e4_1, s.indent(-1));
+    assert(e4_0, s.indent(-2));
+    
+    var s = new Noonworks.String(e2_2);
+    assert(e2_2, s.unindent(0, '  '));
+    assert(e2_1, s.unindent(1, '  '));
+    assert(e2_0, s.unindent(2, '  '));
+    assert(e2_1, s.indent(-1, '  '));
+    assert(e2_0, s.indent(-2, '  '));
+    
+    var eu_4 = '     function(){\n           abc;\n          def;\n        if(true){\n             ghi\n         }\n   }';
+    var eu_3 = ' function(){\n       abc;\n      def;\n    if(true){\n         ghi\n     }\n}';
+    var eu_2 = 'function(){\n   abc;\n  def;\nif(true){\n     ghi\n }\n}';
+    var eu_1 = 'function(){\nabc;\ndef;\nif(true){\n ghi\n}\n}';
+    var eu_0 = 'function(){\nabc;\ndef;\nif(true){\nghi\n}\n}';
+    var s = new Noonworks.String(eu_4);
+    assert(eu_4, s.unindent(0));
+    assert(eu_3, s.unindent(1));
+    assert(eu_2, s.unindent(2));
+    assert(eu_1, s.unindent(3));
+    assert(eu_0, s.unindent(4));
 })();
