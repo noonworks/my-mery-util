@@ -15,6 +15,20 @@
     var lnc = new Noonworks.Launcher();
     var mb = new Noonworks.MenuBuilder();
     
+    var submb = new Noonworks.MenuBuilder();
+    submb.addItem('ファイルパスをコピー',
+        function(){ lnc.copyToClipboard(Document.FullName) });
+    submb.addItem('親フォルダをエクスプローラで開く',
+        function(){ lnc.openExplorer(Document.Path) });
+    submb.addItem('親フォルダでコマンドプロンプトを開く',
+        function(){ lnc.openCmd(Document.Path) });
+    mb.addItem('このドキュメント...', submb.menu);
+    var submb = new Noonworks.MenuBuilder();
+    submb.addItem('Webプレビュー', function(){ lnc.execPlugin(4); });
+    mb.addItem('プラグイン...', submb.menu);
+    mb.addSep();
+    mb.isGrown();
+    
     // open url
     for (var i = 0; i < sel.urls.length; i++) {
         with({ item:sel.urls[i] }) {
@@ -22,10 +36,16 @@
                 function(){ lnc.openUrl(item) });
         } // end with scope
     }
-    mb.need_sep = mb.isGrown();
+    var has_url = false;
+    if (mb.isGrown()) {
+        mb.need_sep = true;
+        has_url = true;
+    } else {
+        mb.need_sep = false;
+    }
     
     // open path menu
-    items = (mb.count > 0) ? new Array() : sel.pathes;
+    items = (has_url) ? new Array() : sel.pathes;
     for (var i = 0; i < items.length; i++) {
         if (items[i].length == 0) {
             continue;
@@ -127,6 +147,10 @@
             submb.addSep();
             submb.addItem('前を検索', function(){ lnc.search(item, false) });
             submb.addItem('次を検索', function(){ lnc.search(item, true) });
+            submb.addItem('ファイルから検索', function(){
+                lnc.select(i_start, i_end, posY_l);
+                lnc.openFileSearchDialog();
+            });
             submb.addSep();
             submb.addItem('Googleで検索', function(){ lnc.searchGoogle(item) });
             if (alp.test(item)) {
@@ -142,12 +166,6 @@
         mb.addItem('(' + items[i].length + '文字) '
             + mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
     }
-    
-    mb.addSep();
-    mb.addItem('このファイルのあるフォルダをエクスプローラで開く',
-        function(){ lnc.openExplorer(Document.Path) });
-    mb.addItem('このファイルのあるフォルダでコマンドプロンプトを開く',
-        function(){ lnc.openCmd(Document.Path) });
     
     // show
     if (mb.count > 0) {
