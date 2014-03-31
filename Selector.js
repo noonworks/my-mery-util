@@ -26,6 +26,7 @@ Noonworks.Selector = function(){
     this.posX_l = sl.GetActivePointX(mePosLogical);
     this.posY_l = sl.GetActivePointY(mePosLogical);
     this.line = Document.GetLine(this.posY_l, 0).replace('\n', '');
+    this.selected = ! sl.IsEmpty;
     if (sl.IsEmpty) {
         sl.SelectWord();
         this.sel = sl.Text;
@@ -139,39 +140,6 @@ Noonworks.Selector.prototype = {
         }
         // if drive name is not found, add Document's path
         str = this.fso.BuildPath(Document.Path, str);
-        return str;
-    }
-};
-
-Noonworks.PathInfo = function(path){
-    var fso = new Noonworks.FileSystemObject();
-    this.path = path;
-    this.parent = fso.GetParentFolderName(path);
-    this.name = fso.GetFileName(path);
-    this.isExist = true;
-    this.parentExists = true;
-    if (fso.FolderExists(path)) {
-        this.isFile = false;
-        this.isDir = true;
-    } else if (fso.FileExists(path)) {
-        this.isFile = true;
-        this.isDir = false;
-    } else {
-        this.isExist = false;
-        this.parentExists = fso.FolderExists(this.parent);
-        this.isFile = (this.name.indexOf('.') >= 0);
-        this.isDir = ! this.isFile;
-    }
-};
-
-Noonworks.PathInfo.prototype = {
-    dump: function() {
-        var items = new Array('parent', 'name',
-            'isExist', 'isFile', 'isDir', 'parentExists');
-        var str = '';
-        for (var i = 0; i < items.length; i++) {
-            str = str + items[i] + ' [' + this[items[i]] + ']\n';
-        }
         return str;
     }
 };

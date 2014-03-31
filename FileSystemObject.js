@@ -171,3 +171,36 @@ Noonworks.FileSystemObject.prototype = {
         this.fso = null;
     }
 };
+
+Noonworks.Path = function(path){
+    var fso = new Noonworks.FileSystemObject();
+    this.path = path;
+    this.parent = fso.GetParentFolderName(path);
+    this.name = fso.GetFileName(path);
+    this.exists = true;
+    this.parentExists = true;
+    if (fso.FolderExists(path)) {
+        this.isFile = false;
+        this.isDir = true;
+    } else if (fso.FileExists(path)) {
+        this.isFile = true;
+        this.isDir = false;
+    } else {
+        this.exists = false;
+        this.parentExists = fso.FolderExists(this.parent);
+        this.isFile = (this.name.indexOf('.') >= 0);
+        this.isDir = ! this.isFile;
+    }
+};
+
+Noonworks.Path.prototype = {
+    dump: function() {
+        var items = new Array('path', 'parent', 'name',
+            'exists', 'isFile', 'isDir', 'parentExists');
+        var str = '';
+        for (var i = 0; i < items.length; i++) {
+            str = str + items[i] + ' [' + this[items[i]] + ']\n';
+        }
+        return str;
+    }
+};
