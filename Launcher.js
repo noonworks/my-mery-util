@@ -54,6 +54,10 @@ Noonworks.Launcher.prototype = {
         Document.selection.Find(str, (next ? meFindNext : meFindPrevious));
     },
     
+    openFileSearchDialog: function() {
+        Editor.ExecuteCommandByID(2140);
+    },
+    
     searchGoogle: function(str) {
         var url = 'https://www.google.co.jp/search?q=' + encodeURI(str);
         this.openUrl(url);
@@ -94,5 +98,9 @@ Noonworks.Launcher.prototype = {
     
     pasteClipboard: function(i_start, i_end, posY_l) {
         this.paste(i_start, i_end, posY_l, ClipboardData.getData());
+    },
+    
+    execPlugin: function(plugin_id) {
+        Editor.ExecuteCommandByID(7168 - 1 + plugin_id);
     }
 };
