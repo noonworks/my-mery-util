@@ -1,111 +1,118 @@
 #title = "NLauncher"
 #include "Selector.js"
 #include "Launcher.js"
-#include "MenuBuilder.js"
-#include "ShowPopupMenu.js"
+#include "PopupMenu.js"
 
-(function(){
-    Status = '';
-    var URL_MINIFY_LEN = 30;
-    var PATH_MINIFY_LEN = 40;
-    var WORD_MINIFY_LEN = 30;
-    var alp = /^[a-zA-Z0-9 \t　\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~]*$/;
-    var sel = new Noonworks.Selector();
+var Noonworks = Noonworks || {};
+
+Noonworks.NLauncher = function(){
+    this.URL_MINIFY_LEN = 30;
+    this.WORD_MINIFY_LEN = 30;
+    this.PATH_MINIFY_LEN = 40;
+    this.alp = /^[a-zA-Z0-9 \t　\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~]*$/;
+    this.lnc = new Noonworks.Launcher();
+    this.sel = new Noonworks.Selector();
     //alert(sel.dump());
-    var lnc = new Noonworks.Launcher();
-    var mb = new Noonworks.MenuBuilder();
-    
-    var submb = new Noonworks.MenuBuilder();
-    submb.addItem('ファイルパスをコピー',
-        function(){ lnc.copyToClipboard(Document.FullName) });
-    submb.addItem('親フォルダをエクスプローラで開く',
-        function(){ lnc.openExplorer(Document.Path) });
-    submb.addItem('親フォルダでコマンドプロンプトを開く',
-        function(){ lnc.openCmd(Document.Path) });
-    mb.addItem('このドキュメント...', submb.menu);
-    var submb = new Noonworks.MenuBuilder();
-    submb.addItem('Webプレビュー', function(){ lnc.execPlugin(4); });
-    mb.addItem('プラグイン...', submb.menu);
-    mb.addSep();
-    mb.isGrown();
-    
-    // open url
-    for (var i = 0; i < sel.urls.length; i++) {
-        with({ item:sel.urls[i] }) {
-            mb.addItem('URLを開く[' + mb.minify(item, URL_MINIFY_LEN) + ']',
-                function(){ lnc.openUrl(item) });
-        } // end with scope
+    this.menu = new Noonworks.PopupMenu();
+    // this document
+    this.menu.add('このドキュメント...', this.makePathMenu(Document.FullName));
+    this.menu.need_separator = true;
+    // url
+    for (var i = 0; i < this.sel.urls.length; i++) {
+        this.menu.add('URL ' + this.menu.minify(this.sel.urls[i], this.URL_MINIFY_LEN),
+            this.makeUrlMenu(this.sel.urls[i]));
     }
-    var has_url = false;
-    if (mb.isGrown()) {
-        mb.need_sep = true;
-        has_url = true;
-    } else {
-        mb.need_sep = false;
-    }
-    
+    this.menu.need_separator = this.menu.need_separator || this.menu.hasGrown();
     // open path menu
-    items = (has_url) ? new Array() : sel.pathes;
-    for (var i = 0; i < items.length; i++) {
-        if (items[i].length == 0) {
+    var pathes = (this.sel.urls.length > 0) ? new Array() : this.sel.pathes;
+    for (var i = 0; i < pathes.length; i++) {
+        if (pathes[i].length == 0) {
             continue;
         }
-        var submb = new Noonworks.MenuBuilder();
-        with({ item : items[i],
-               p : new Noonworks.PathInfo(items[i]) }) {
-            // open if exists
-            if (p.isExist) {
-                if (p.isDir) {
-                    submb.addItem('エクスプローラで開く',
-                        function(){ lnc.openExplorer(item) });
-                    submb.addItem('ここでコマンドプロンプトを開く',
-                        function(){ lnc.openCmd(item) });
-                } else  {
-                    submb.addItem('Meryで開く',
-                        function(){ lnc.openMery(item) });
-                    submb.addItem('関連付けされたプログラムで開く',
-                        function(){ lnc.open(item) });
-                }
-            } else {
-            // create if not exists
-                if (p.isDir) {
-                    submb.addItem('このフォルダを作る', function(){
-                        if (Confirm('以下のフォルダを作成します。\n' + item)) {
-                            if (! lnc.createDirRecursive(item)) {
-                                alert('フォルダ作成に失敗しました。\n' + item);
-                            } else {
-                                Status = 'フォルダ作成：' + item;
-                            }
-                        }
-                    });
-                } else {
-                    submb.addItem('Meryで作成', function() {
-                        if (! p.parentExists) {
-                            if (!Confirm('親フォルダを作成して開きます。\n' + p.parent)) {
-                                return;
-                            }
-                            if (! lnc.createDirRecursive(p.parent)) {
-                                alert('フォルダ作成に失敗しました。\n' + p.parent);
-                                return;
-                            } else {
-                                Status = 'フォルダ作成：' + p.parent;
-                            }
-                        }
-                        lnc.createWithMery(item);
-                    });
-                }
-            }
-            // add separator if needed
-            submb.need_sep = submb.isGrown();
-            // open parent folder if exists
-            if (p.parentExists) {
-                submb.addItem('親フォルダをエクスプローラで開く',
+        var submenu = this.makePathMenu(pathes[i]);
+        var s = (new Noonworks.Path(pathes[i])).isFile ? 'File: ' : 'Dir: ';
+        this.menu.add(s + this.menu.minify(pathes[i], this.PATH_MINIFY_LEN), submenu);
+    }
+    this.menu.need_separator = this.menu.need_separator || this.menu.hasGrown();
+    // keyword menu
+    var line_s = new Noonworks.String(this.sel.line);
+    for (var i = 0; i < this.sel.words.length; i++) {
+        if (this.sel.words[i].length == 0) {
+            continue;
+        }
+        var i_start = line_s.curIndexOf(this.sel.posX_l, this.sel.words[i]);
+        var i_end = i_start + this.sel.words[i].length;
+        var submenu = this.makeWordMenu(this.sel.words[i], i_start, i_end, this.sel.posY_l);
+        this.menu.add('(' + this.sel.words[i].length + '文字) '
+            + this.menu.minify(this.sel.words[i], this.WORD_MINIFY_LEN), submenu);
+    }
+};
+
+Noonworks.NLauncher.prototype = {
+    makeWordMenu: function(word, i_start, i_end, posY_l) {
+        var menu = new Noonworks.PopupMenu();
+        var lnc = this.lnc;
+        if (!this.sel.selected) {
+            menu.add('選択', function(){ lnc.select(i_start, i_end, posY_l); });
+        }
+        if (ClipboardData.GetData().length > 0) {
+            menu.add('クリップボードからここに貼り付け', function(){
+                lnc.pasteClipboard(i_start, i_end, posY_l);
+            });
+        }
+        menu.add('コピー', function(){ lnc.copyToClipboard(word) });
+        menu.addSeparator();
+        menu.add('前を検索', function(){ lnc.search(word, false) });
+        menu.add('次を検索', function(){ lnc.search(word, true) });
+        menu.add('ファイルから検索', function(){
+            lnc.select(i_start, i_end, posY_l);
+            lnc.openFileSearchDialog();
+        });
+        menu.addSeparator();
+        menu.add('Googleで検索', function(){ lnc.searchGoogle(word) });
+        if (this.alp.test(word)) {
+            menu.add('Google翻訳で翻訳（英→日）',
+                function(){ lnc.openGoogleTranslateEnToJa(word) });
+        } else {
+            menu.add('Google翻訳で翻訳（日→英）',
+                function(){ lnc.openGoogleTranslateJaToEn(word) });
+        }
+        menu.addSeparator();
+        menu.add('Wikipediaで検索', function(){ lnc.searchWikipedia(word) });
+        return menu;
+    },
+    
+    makeUrlMenu: function(url) {
+        var menu = new Noonworks.PopupMenu();
+        var lnc = this.lnc;
+        menu.add('URLをコピー', function(){ lnc.copyToClipboard(url) });
+        menu.add('URLを開く', function(){ lnc.openUrl(url) });
+        return menu;
+    },
+    
+    makePathMenu: function(path) {
+        var p = new Noonworks.Path(path);
+        var menu = new Noonworks.PopupMenu();
+        var lnc = this.lnc;
+        menu.add('パスをコピー',
+            function(){ lnc.copyToClipboard(p.path) });
+        // open if exists
+        if (p.exists) {
+            if (p.isDir) {
+                menu.add('エクスプローラで開く',
                     function(){ lnc.openExplorer(p.parent) });
-                submb.addItem('親フォルダでコマンドプロンプトを開く',
+                menu.add('ここでコマンドプロンプトを開く',
                     function(){ lnc.openCmd(p.parent) });
-            } else {
-            // create parent folder if not exists
-                submb.addItem('親フォルダを作る', function() {
+            } else  {
+                menu.add('Meryで開く',
+                    function(){ lnc.openMery(p.path) });
+                menu.add('関連付けされたプログラムで開く',
+                    function(){ lnc.open(p.path) });
+            }
+        } else {
+        // create if not exists
+            if (p.isDir) {
+                menu.add('このフォルダを作る', function(){
                     if (Confirm('以下のフォルダを作成します。\n' + p.parent)) {
                         if (! lnc.createDirRecursive(p.parent)) {
                             alert('フォルダ作成に失敗しました。\n' + p.parent);
@@ -114,62 +121,52 @@
                         }
                     }
                 });
-            }
-            // add submenu
-            if (submb.count > 0) {
-                var prefix = p.isFile ? 'File: ' : 'Dir: ';
-                mb.addItem(prefix + mb.minify(item, PATH_MINIFY_LEN), submb.menu);
-            }
-        } // end with scope
-    }
-    mb.need_sep = mb.isGrown();
-    
-    // keyword menu
-    items = sel.words;
-    var line_s = new Noonworks.String(sel.line);
-    for (var i = 0; i < items.length; i++) {
-        if (items[i].length == 0) {
-            continue;
-        }
-        var i_start = line_s.curIndexOf(sel.posX_l, items[i]);
-        var i_end = i_start + items[i].length;
-        var submb = new Noonworks.MenuBuilder();
-        with({ item:items[i], i_start:i_start, i_end:i_end, posY_l:sel.posY_l }) {
-            if (sel.sel !== items[i]) {
-                submb.addItem('選択', function(){ lnc.select(i_start, i_end, posY_l); });
-            }
-            if (ClipboardData.GetData().length > 0) {
-                submb.addItem('クリップボードからここに貼り付け', function(){
-                    lnc.pasteClipboard(i_start, i_end, posY_l);
+            } else {
+                menu.add('Meryで作成', function() {
+                    if (! p.parentExists) {
+                        if (!Confirm('親フォルダを作成して開きます。\n' + p.parent)) {
+                            return;
+                        }
+                        if (! lnc.createDirRecursive(p.parent)) {
+                            alert('フォルダ作成に失敗しました。\n' + p.parent);
+                            return;
+                        } else {
+                            Status = 'フォルダ作成：' + p.parent;
+                        }
+                    }
+                    lnc.createWithMery(p.path);
                 });
             }
-            submb.addItem('コピー', function(){ lnc.copyToClipboard(item) });
-            submb.addSep();
-            submb.addItem('前を検索', function(){ lnc.search(item, false) });
-            submb.addItem('次を検索', function(){ lnc.search(item, true) });
-            submb.addItem('ファイルから検索', function(){
-                lnc.select(i_start, i_end, posY_l);
-                lnc.openFileSearchDialog();
+        }
+        // add separator if needed
+        menu.need_separator = menu.hasGrown();
+        // open parent folder if exists
+        if (p.parentExists) {
+            menu.add('親フォルダをエクスプローラで開く',
+                function(){ lnc.openExplorer(p.parent) });
+            menu.add('親フォルダでコマンドプロンプトを開く',
+                function(){ lnc.openCmd(p.parent) });
+        } else {
+        // create parent folder if not exists
+            menu.add('親フォルダを作る', function() {
+                if (Confirm('以下のフォルダを作成します。\n' + p.parent)) {
+                    if (! lnc.createDirRecursive(p.parent)) {
+                        alert('フォルダ作成に失敗しました。\n' + p.parent);
+                    } else {
+                        Status = 'フォルダ作成：' + p.parent;
+                    }
+                }
             });
-            submb.addSep();
-            submb.addItem('Googleで検索', function(){ lnc.searchGoogle(item) });
-            if (alp.test(item)) {
-                submb.addItem('Google翻訳で翻訳（英→日）',
-                    function(){ lnc.openGoogleTranslateEnToJa(item) });
-            } else {
-                submb.addItem('Google翻訳で翻訳（日→英）',
-                    function(){ lnc.openGoogleTranslateJaToEn(item) });
-            }
-            submb.addSep();
-            submb.addItem('Wikipediaで検索', function(){ lnc.searchWikipedia(item) });
-        } // end with scope
-        mb.addItem('(' + items[i].length + '文字) '
-            + mb.minify(items[i], WORD_MINIFY_LEN), submb.menu);
+        }
+        return menu;
     }
-    
-    // show
-    if (mb.count > 0) {
-        ShowPopupMenu(mb.menu);
+};
+
+(function(){
+    Status = '';
+    var l = new Noonworks.NLauncher();
+    if (l.menu.item_length > 0) {
+        l.menu.show();
     } else {
         Status = 'NLauncher: No actions detected.';
     }
