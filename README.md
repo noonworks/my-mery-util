@@ -16,6 +16,14 @@ is simple and powerful text editor for Windows written by [Kuro](https://github.
 は [Kuro](https://github.com/haijinboys) 氏によるWindows用のシンプルで多機能なテキストエディタです。
 
 
+HTADialog.js
+---------------
+Show and get value from HTA(HTML) dialog. See `dialog_sample.js`.
+
+HTA（HTML）製のダイアログを表示して値をやりとりするためのライブラリです。
+使い方は`dialog_sample.js`を参照してください。
+
+
 toStart.js
 ---------------
 Go to the start of line.
