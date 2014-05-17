@@ -74,9 +74,10 @@ Noonworks.PopupMenu = function(id_offset, separator_text){
     this.need_separator = false;
     this.item_length = 0;
     this._pre_item_length = 0;
-    this._id_offset = (typeof id_offset === 'undefined') ? 0 : id_offset;
+    this._id_offset = (typeof id_offset === 'undefined') ? 1 : id_offset;
     this._id_max = this._id_offset;
     this.separator_text = (typeof separator_text === 'undefined') ? '----' : separator_text;
+    this.on_no_one_selected = function() {};
 };
 
 Noonworks.PopupMenu.prototype = {
@@ -270,6 +271,9 @@ Noonworks.PopupMenu.prototype = {
     show: function() {
         var m = this.toMenu();
         var sel = m.Track(mePosMouse);
+        if (sel === 0) {
+            this.on_no_one_selected();
+        }
         return this.getCallback(sel)();
     },
     
