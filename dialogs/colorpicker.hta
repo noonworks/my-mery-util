@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<!--
+
+    color picker dialog
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<hta:application showintaskbar="yes" border="dialog" borderstyle="raised" contextmenu="yes" 
+innerborder="no" maximizebutton="no" minimizebutton="no" scroll="no" scrollflat="no" navigable="yes" />
+<title>color picker</title>
+<script type="text/javascript">
+var WIDTH = 220;
+var HEIGHT = 300;
+window.moveTo(parseInt((screen.width - WIDTH) / 2),
+    parseInt((screen.height - HEIGHT) / 2));
+window.resizeTo(WIDTH, HEIGHT);
+</script>
+<style type="text/css">
+body { margin:0; padding:0; align:center; }
+</style>
+
+<!-- =============== REQUIRE jso2.js AND HTADialog.js =============== -->
+<script type="text/javascript" src="../json2.js"></script>
+<script type="text/javascript" src="../HTADialog.js"></script>
+<!-- =============== REQUIRE jso2.js AND HTADialog.js =============== -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<!-- http://bgrins.github.io/spectrum -->
+<script src="spectrum.js"></script>
+<link rel="stylesheet" href="spectrum.css" />
+
+<script type="text/javascript">
+var data_passed = typeof(Noonworks.HTADialog) !== 'undefined'
+    && Noonworks.HTADialog.data_passed;
+$(function(){
+    var default_color = "#000000";
+    if (data_passed) {
+        default_color = Noonworks.HTADialog.data['data'];
+    }
+    $("#colorname").spectrum({
+        flat: true,
+        showInput: true,
+        showAlpha: true,
+        showInitial: true,
+        preferredFormat: "hex",
+        color: default_color,
+        change: function() {
+            Noonworks.HTADialog.returnString($('#colorname').val());
+            window.close(); // close self
+        }
+    });
+    $('.sp-cancel').click(function(){ window.close(); });
+});
+
+</script>
+</head>
+<body>
+<form id="picker_form">
+    <input type="text" id="colorname" />
+</form>
+</body>
+</html>
