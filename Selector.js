@@ -19,8 +19,6 @@ Noonworks.UniqueArray.prototype = {
 };
 
 Noonworks.Selector = function(){
-    this.fso = new Noonworks.FileSystemObject();
-    this.shell = new ActiveXObject('WScript.Shell');
     this.spacer = /[\t\n 　]+/;
     var sl = Document.Selection;
     this.posX_l = sl.GetActivePointX(mePosLogical);
@@ -44,8 +42,9 @@ Noonworks.Selector = function(){
     var separators = new Array( // 区切りの定義
         '"',
         "'",
-        /[\t 「」『』【】（）\[\]\(\)　。！？、\,\?\!\;\:\.\\\n\"]+/, // 単語(狭)
-        /[\t 「」『』【】（）\[\]\(\)　。、！？\,\?\!\;\:\\\n\"]+/, // 単語(広)
+        /[「」『』【】（）〔〕［］《》≪≫＜＞\<\>\[\]\(\)]+/, // 単語(カッコ内)
+        /[\t 「」『』【】（）〔〕［］《》≪≫＜＞\<\>\[\]\(\)　。！？、\,\?\!\;\:\.\\\n\"]+/, // 単語(狭)
+        /[\t 「」『』【】（）〔〕［］《》≪≫＜＞\<\>\[\]\(\)　。、！？\,\?\!\;\:\\\n\"]+/, // 単語(広)
         /[\.\?\!]\s|[\t\n。！？\"]+/ // 文
     );
     for (var i in separators) {
@@ -59,6 +58,12 @@ Noonworks.Selector = function(){
     this.words = this.words._arr;
     // URL
     this.urls = new Noonworks.UniqueArray();
+    if (this.sel.length > 0) {
+        var s = this.fixUrl(this.sel.replace(/^\s*|\s*$/g, ''));
+        if (s.length > 0) {
+            this.urls.push(s);
+        }
+    }
     var separators = new Array( // 区切りの定義
         /[\t\<\>\|\\\{\}\^\[\]\`\n\(\)「」【】『』 　\'\"]+/,
         /[\t\<\>\|\\\{\}\^\[\]\`\n\"]+/
@@ -72,24 +77,34 @@ Noonworks.Selector = function(){
     }
     this.urls = this.urls._arr;
     // Path
-    this.pathes = new Noonworks.UniqueArray();
-    this.pathes_original = new Array();
+    this.pathes = new Array();
+    var pathes_dummy = new Noonworks.UniqueArray();
+    var str_array = new Noonworks.UniqueArray();
+    if (this.sel.length > 0) {
+        str_array.push(this.sel.replace(/\//g, '\\'));
+    }
     var separators = new Array( // 区切りの定義
-        /[\t\<\>\|\/\?\*\n\`\;\=\"]+/,
-        /[\t\<\>\|\/\?\*\n\"]+/
+        /[\t\s\n\*\?\"\<\>\|]+/,
+        /[\t\s\n\*\?\"\<\>\|\/\\]+/,
+        /[\t\s\n\*\?\"\<\>\|\/\\ 　]+/,
+        /[\t\s\n\*\?\"\<\>\|\/\\ 　\(\)（）]+/
     );
     for (var i in separators) {
         var org = line.pickup(this.posX_l - 1, separators[i]).toString();
-        var path = this.fixFilePath(org);
-        if (path.length > 0) {
-            var l = this.pathes._arr.length;
-            this.pathes.push(path);
-            if (l < this.pathes._arr.length) {
-                this.pathes_original.push(org);
-            }
+        if (org.length > 0) {
+            str_array.push(org.replace(/\//g, '\\'));
         }
     }
-    this.pathes = this.pathes._arr;
+    for (var i = 0; i < str_array._arr.length; i++) {
+        var org = str_array._arr[i];
+        var path = new Noonworks.Path(org);
+        var l = pathes_dummy._arr.length;
+        pathes_dummy.push(path.path);
+        if (l < pathes_dummy._arr.length) {
+            this.pathes.push(path);
+        }
+    }
+    this.pathes.sort(Noonworks.Path.possibilitySort);
 };
 
 Noonworks.Selector.prototype = {
@@ -102,7 +117,7 @@ Noonworks.Selector.prototype = {
                     str = str + i + ':' + this[i] + '\n';
                     break;
                 case 'object':
-                    if (i !== 'fso' && i !== 'shell' && i !== 'spacer') {
+                    if (i !== 'spacer') {
                         str = str + i + ' [\n';
                         for (var j in this[i]) {
                             str = str + '  ' + j + ':[' + this[i][j] + ']\n';
@@ -122,24 +137,5 @@ Noonworks.Selector.prototype = {
             return str;
         }
         return '';
-    },
-    
-    fixFilePath: function(str) {
-        if (str.length === 0) {
-            return '';
-        }
-        str = this.shell.ExpandEnvironmentStrings(str);
-        // check including drive name
-        try {
-            this.fso.GetDrive(this.fso.GetDriveName(str));
-            return str;
-        } catch (e) {
-            if (str.substring(0, 2) === '\\\\') {
-                return '';
-            }
-        }
-        // if drive name is not found, add Document's path
-        str = this.fso.BuildPath(Document.Path, str);
-        return str;
     }
 };

@@ -172,31 +172,146 @@ Noonworks.FileSystemObject.prototype = {
     }
 };
 
-Noonworks.Path = function(path){
-    var fso = new Noonworks.FileSystemObject();
-    this.path = path;
-    this.parent = fso.GetParentFolderName(path);
-    this.name = fso.GetFileName(path);
-    this.exists = true;
-    this.parentExists = true;
-    if (fso.FolderExists(path)) {
-        this.isFile = false;
-        this.isDir = true;
-    } else if (fso.FileExists(path)) {
-        this.isFile = true;
-        this.isDir = false;
+Noonworks.Path = function(original_string, default_dir){
+    if (typeof default_dir === 'undefined') {
+        default_dir = Document.Path;
+    }
+    this._setPath(original_string, default_dir);
+};
+
+Noonworks.Path._pos_probably = /[a-zA-Z0-9\.]/;
+Noonworks.Path._sep_regex = /\//g;
+Noonworks.Path._dup_sep_regex = /\\\\/g;
+Noonworks.Path._drive_regex = /^[a-zA-Z]:/;
+
+Noonworks.Path.PossibilityCertain = 100;
+Noonworks.Path.PossibilityParentCertain = 75;
+Noonworks.Path.PossibilityMaybeWantToMake = 60;
+Noonworks.Path.PossibilityNotButMakeIfWant = 50;
+Noonworks.Path.PossibilityParentNotButWouldMake = 30;
+Noonworks.Path.PossibilityUnknown = 15;
+Noonworks.Path.PossibilityNever = 0;
+
+Noonworks.Path.possibilitySort = function (x,y) {
+    if (y.possibility === x.possibility) {
+        if (x.possibility < Noonworks.Path.PossibilityParentCertain) {
+            return y.path.length - x.path.length;
+        }
+        return 0;
     } else {
-        this.exists = false;
-        this.parentExists = fso.FolderExists(this.parent);
-        this.isFile = (this.name.indexOf('.') >= 0);
-        this.isDir = ! this.isFile;
+        return y.possibility - x.possibility;
     }
 };
 
 Noonworks.Path.prototype = {
+    _setPath: function(original_string, default_dir) {
+        var fso = new Noonworks.FileSystemObject();
+        var shell = new ActiveXObject('WScript.Shell');
+        this.original_string = original_string;
+        var path = this._fixFilePath(shell, fso, original_string, default_dir);
+        this.path = path;
+        this.parent = fso.GetParentFolderName(path);
+        this.name = fso.GetFileName(path);
+        this.exists = true;
+        this.parentExists = true;
+        if (fso.FolderExists(path)) {
+            this.isFile = false;
+            this.isDir = true;
+        } else if (fso.FileExists(path)) {
+            this.isFile = true;
+            this.isDir = false;
+        } else {
+            this.exists = false;
+            this.parentExists = fso.FolderExists(this.parent);
+            this.isFile = (this.name.indexOf('.') >= 0);
+            this.isDir = ! this.isFile;
+        }
+        if (this.parentExists) {
+            this.grandParentExists = true;
+        } else {
+            var gp = fso.GetParentFolderName(this.parent);
+            if (gp.length > 0) {
+                this.grandParentExists = fso.FolderExists(gp);
+            } else {
+                this.grandParentExists = false;
+            }
+        }
+        this.possibility = this._detectPossibility();
+    },
+    
+    _detectPossibility: function() {
+        if (this.path.length === 0) {
+            return Noonworks.Path.PossibilityNever; // 0
+        }
+        if (this.exists) {
+            return Noonworks.Path.PossibilityCertain; // 100
+        }
+        if (! /[\\\/]/g.test(this.original_string)) {
+            if (Noonworks.Path._pos_probably.test(this.original_string)) {
+                return Noonworks.Path.PossibilityMaybeWantToMake; // 60
+            }
+            return Noonworks.Path.PossibilityNotButMakeIfWant; // 50
+        }
+        if (this.parentExists) {
+            return Noonworks.Path.PossibilityParentCertain; // 75
+        } else if (this.grandParentExists) {
+            return Noonworks.Path.PossibilityParentNotButWouldMake; // 30
+        }
+        return Noonworks.Path.PossibilityUnknown; // 15
+    },
+    
+    _hasDrive: function(fso, str) {
+        try {
+            fso.GetDrive(fso.GetDriveName(str));
+            return true;
+        } catch (e) {}
+        return (str.substring(0, 2) === '\\\\');
+    },
+    
+    _fixInvalidChar: function(str) {
+        str = str.replace(Noonworks.Path._sep_regex, '\\');
+        if (str.length > 1 && Noonworks.Path._dup_sep_regex.test(str.substring(1))) {
+            return '';
+        }
+        if (Noonworks.Path._drive_regex.test(str)) {
+            if (str.length == 2) {
+                return str;
+            }
+            if (str.substring(2, 3) !== '\\') {
+                return '';
+            }
+            var cln_i = str.indexOf(':', 2);
+            if (cln_i > 1) {
+                return str.substring(0, cln_i);
+            }
+        }
+        return str;
+    },
+    
+    _fixFilePath: function(shell, fso, str, default_dir) {
+        if (str.length === 0) {
+            return '';
+        }
+        str = shell.ExpandEnvironmentStrings(str);
+        str = this._fixInvalidChar(str);
+        // check including drive name
+        if (this._hasDrive(fso, str)) {
+            return str;
+        }
+        // allow slash for separator
+        str = str.replace(/\//g, '\\');
+        // check including drive name
+        if (this._hasDrive(fso, str)) {
+            return str;
+        }
+        // if drive name is not found, add default_dir
+        str = fso.BuildPath(default_dir, str);
+        return str;
+    },
+    
     dump: function() {
-        var items = new Array('path', 'parent', 'name',
-            'exists', 'isFile', 'isDir', 'parentExists');
+        var items = new Array('original_string', 'path', 'parent', 'name',
+            'exists', 'isFile', 'isDir', 'parentExists', 'possibility');
         var str = '';
         for (var i = 0; i < items.length; i++) {
             str = str + items[i] + ' [' + this[items[i]] + ']\n';

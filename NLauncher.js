@@ -12,26 +12,35 @@ Noonworks.NLauncher = function(){
     this.alp = /^[a-zA-Z0-9 \t　\!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~]*$/;
     this.lnc = new Noonworks.Launcher();
     this.sel = new Noonworks.Selector();
-    //alert(sel.dump());
+    //alert(this.sel.dump());
     this.menu = new Noonworks.PopupMenu();
     // this document
-    this.menu.add('このドキュメント...', this.makePathMenu(Document.FullName));
+    var m = this.makePathMenu(new Noonworks.Path(Document.FullName));
+    this.menu.add('このドキュメント...', this._toSubmenu(m));
     this.menu.need_separator = true;
-    // url
+    // url menu
     for (var i = 0; i < this.sel.urls.length; i++) {
         this.menu.add('URL ' + this.menu.minify(this.sel.urls[i], this.URL_MINIFY_LEN),
-            this.makeUrlMenu(this.sel.urls[i]));
+            this._toSubmenu(this.makeUrlMenu(this.sel.urls[i])));
     }
     this.menu.need_separator = this.menu.need_separator || this.menu.hasGrown();
-    // open path menu
+    // path menu
+    var all_pathes_menu = new Noonworks.PopupMenu();
     var pathes = (this.sel.urls.length > 0) ? new Array() : this.sel.pathes;
     for (var i = 0; i < pathes.length; i++) {
-        if (pathes[i].length == 0) {
+        if (pathes[i].path.length == 0) {
             continue;
         }
         var submenu = this.makePathMenu(pathes[i]);
-        var s = (new Noonworks.Path(pathes[i])).isFile ? 'File: ' : 'Dir: ';
-        this.menu.add(s + this.menu.minify(pathes[i], this.PATH_MINIFY_LEN), submenu);
+        var s = pathes[i].isFile ? 'File: ' : 'Dir: ';
+        if (pathes[i].possibility === Noonworks.Path.PossibilityCertain) {
+            this.menu.add(s + this.menu.minify(pathes[i].path, this.PATH_MINIFY_LEN),
+            this._toSubmenu(submenu));
+        } else {
+            all_pathes_menu.add(
+                s + all_pathes_menu.minify(pathes[i].path, this.PATH_MINIFY_LEN),
+                this._toSubmenu(submenu));
+        }
     }
     this.menu.need_separator = this.menu.need_separator || this.menu.hasGrown();
     // keyword menu
@@ -44,11 +53,20 @@ Noonworks.NLauncher = function(){
         var i_end = i_start + this.sel.words[i].length;
         var submenu = this.makeWordMenu(this.sel.words[i], i_start, i_end, this.sel.posY_l);
         this.menu.add('(' + this.sel.words[i].length + '文字) '
-            + this.menu.minify(this.sel.words[i], this.WORD_MINIFY_LEN), submenu);
+            + this.menu.minify(this.sel.words[i], this.WORD_MINIFY_LEN),
+            this._toSubmenu(submenu));
     }
+    this.menu.need_separator = this.menu.need_separator || this.menu.hasGrown();
+    // all pathes
+    this.menu.merge(all_pathes_menu);
 };
 
 Noonworks.NLauncher.prototype = {
+    _toSubmenu: function(submenu) {
+        return function() { submenu.show(); };
+        return submenu;
+    },
+    
     makeWordMenu: function(word, i_start, i_end, posY_l) {
         var menu = new Noonworks.PopupMenu();
         var lnc = this.lnc;
@@ -90,8 +108,7 @@ Noonworks.NLauncher.prototype = {
         return menu;
     },
     
-    makePathMenu: function(path) {
-        var p = new Noonworks.Path(path);
+    makePathMenu: function(p) {
         var menu = new Noonworks.PopupMenu();
         var lnc = this.lnc;
         menu.add('パスをコピー',
