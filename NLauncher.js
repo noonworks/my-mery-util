@@ -100,9 +100,11 @@ Noonworks.NLauncher.prototype = {
         if (p.exists) {
             if (p.isDir) {
                 menu.add('エクスプローラで開く',
-                    function(){ lnc.openExplorer(p.parent) });
+                    function(){ lnc.openExplorer(p.path) });
                 menu.add('ここでコマンドプロンプトを開く',
-                    function(){ lnc.openCmd(p.parent) });
+                    function(){ lnc.openCmd(p.path) });
+                menu.add('ここで管理者コマンドプロンプトを開く',
+                    function(){ lnc.openAdminCmd(p.path) });
             } else  {
                 menu.add('Meryで開く',
                     function(){ lnc.openMery(p.path) });
@@ -146,6 +148,8 @@ Noonworks.NLauncher.prototype = {
                 function(){ lnc.openExplorer(p.parent) });
             menu.add('親フォルダでコマンドプロンプトを開く',
                 function(){ lnc.openCmd(p.parent) });
+            menu.add('親フォルダで管理者コマンドプロンプトを開く',
+                function(){ lnc.openAdminCmd(p.parent) });
         } else {
         // create parent folder if not exists
             menu.add('親フォルダを作る', function() {

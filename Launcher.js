@@ -5,6 +5,7 @@ var Noonworks = Noonworks || {};
 Noonworks.Launcher = function(){
     this.fso = new Noonworks.FileSystemObject();
     this.shell = new ActiveXObject('WScript.Shell');
+    this.app = new ActiveXObject('Shell.Application');
 };
 
 Noonworks.Launcher.prototype = {
@@ -32,6 +33,11 @@ Noonworks.Launcher.prototype = {
         path = path || Document.Path || this.shell.SpecialFolders('Desktop');
         this.shell.CurrentDirectory = path;
         this.shell.Run('cmd');
+    },
+    
+    openAdminCmd: function(path) {
+        path = path || Document.Path || this.shell.SpecialFolders('Desktop');
+        this.app.ShellExecute('cmd.exe', '/k cd /d "' + path + '"', 'uac', 'runas', 1);
     },
     
     openExplorer: function(path) {
