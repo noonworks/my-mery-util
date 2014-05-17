@@ -1,0 +1,18 @@
+/*
+    CSS for Sample HTA dialog
+*/
+body {
+    margin:0;
+    padding: 10px;
+}
+
+fieldset {
+    width: 400px;
+    margin: 0;
+    padding: 5px;
+}
+
+ul {
+    padding: 0;
+    list-style-type: none;
+}

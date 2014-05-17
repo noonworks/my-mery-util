@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<!--
+
+    Sample HTA dialog
+
+-->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+<hta:application showintaskbar="yes" border="dialog" borderstyle="raised" contextmenu="yes" 
+innerborder="no" maximizebutton="no" minimizebutton="no" scrollflat="yes" navigable="yes" />
+<title>sample dialog</title>
+<script type="text/javascript">
+
+// Set window size and position.
+var WIDTH = 480;
+var HEIGHT = 560;
+window.moveTo(parseInt((screen.width - WIDTH) / 2), parseInt((screen.height - HEIGHT) / 2));
+window.resizeTo(WIDTH, HEIGHT);
+
+</script>
+<link rel="stylesheet" type="text/css" href="sample_dialog.css" />
+
+<!-- =============== REQUIRE jso2.js AND HTADialog.js =============== -->
+<script type="text/javascript" src="../json2.js"></script>
+<script type="text/javascript" src="../HTADialog.js"></script>
+<!-- =============== REQUIRE jso2.js AND HTADialog.js =============== -->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+// var data_passed is true if any data passed by Mery Macro.
+var data_passed = typeof(Noonworks.HTADialog) !== 'undefined'
+    && Noonworks.HTADialog.data_passed;
+
+// function form2obj
+//  build data object from input form values.
+function form2obj() {
+    var data = {};
+    // serialize form data with jQuery.serializeArray.
+    $($('#sample_form').serializeArray()).each(function(i, v) {
+        if (typeof(data[v.name]) === 'undefined') {
+            data[v.name] = v.value;
+        } else if (typeof(data[v.name]) === 'object') {
+            data[v.name].push(v.value);
+        } else {
+            data[v.name] = [data[v.name], v.value];
+        }
+    });
+    // add file path manually (jQuery.serializeArray no support it)
+    var file = $('#file_selector').val();
+    if (file.length > 0) {
+        data['file_selector'] = file;
+    }
+    return data;
+}
+
+// function returnData
+//  return data object to Mery Macro.
+function returnData() {
+    if (data_passed) {
+        Noonworks.HTADialog.returnObject(form2obj()); // return object
+        // you can also use following return methods.
+        //Noonworks.HTADialog.returnString('return simple text.');
+        //Noonworks.HTADialog.returnString('{"test":"return JSON as text."}');
+    }
+}
+
+// set onload events with jQuery
+$(function(){
+    // if some data passed from Mery Macro, set data['test'] to textarea.
+    if (data_passed) {
+        $('#text_area').text(Noonworks.HTADialog.data['test']);
+    }
+    // set on submit event to return values to Mery Macro.
+    $('#sample_form').submit(function(){
+        returnData();
+        window.close(); // close self
+        return false; // don't redirect to next page
+    });
+});
+
+</script>
+</head>
+<body>
+<form id="sample_form" method="post" action="">
+    <fieldset>
+        <legend>テキスト</legend>
+        <label for="input_normal">テキストボックス</label>
+        <input type="text" id="input_normal" name="input_normal" value="テキストボックス" />
+        <br />
+        <label for="input_disabled">テキストボックス（無効）</label>
+        <input type="text" id="input_disabled" name="input_disabled"
+            value="テキストボックス（無効）" disabled="disabled" />
+        <br />
+        <label for="input_password">テキストボックス（パスワード）</label>
+        <input type="password" id="input_password" name="input_password" />
+        <br />
+        <label for="input_disabled">テキストエリア</label><br />
+        <textarea id="text_area" name="text_area" cols="30" rows="5"></textarea>
+    </fieldset>
+    
+    <fieldset>
+        <legend>ラジオボタン</legend>
+        <ul>
+        <li><input type="radio" id="radio_1" name="radio_buttons" value="radio_1_on" checked="checked" />
+            <label for="radio_1">ラジオボタン1</label></li>
+        <li><input type="radio" id="radio_2" name="radio_buttons" value="radio_2_on" />
+            <label for="radio_2">ラジオボタン2</label></li>
+        </ul>
+    </fieldset>
+    
+    <fieldset>
+        <legend>チェックボックス</legend>
+        <ul>
+        <li><input type="checkbox" id="checkbox_A" name="checkbox_A" value="checkbox_A_on" />
+            <label for="checkbox_A">チェックボックスA</label></li>
+        <li><input type="checkbox" id="checkbox_B" name="checkbox_B" value="checkbox_B_on" />
+            <label for="checkbox_B">チェックボックスB</label></li>
+        </ul>
+    </fieldset>
+    
+    <fieldset>
+        <legend>チェックボックス（グループ化）</legend>
+        <ul>
+        <li><input type="checkbox" id="checkbox_C_1" name="checkbox_C" value="checkbox_C_1_on" />
+            <label for="checkbox_C_1">チェックボックスC-1</label></li>
+        <li><input type="checkbox" id="checkbox_C_2" name="checkbox_C" value="checkbox_C_2_on" />
+            <label for="checkbox_C_2">チェックボックスC-2</label></li>
+        <li><input type="checkbox" id="checkbox_C_3" name="checkbox_C" value="checkbox_C_3_on" />
+            <label for="checkbox_C_3">チェックボックスC-3</label></li>
+        </ul>
+    </fieldset>
+    
+    <fieldset>
+        <legend>セレクトボックス</legend>
+        <label for="input_normal">セレクトボックス</label>
+        <select id="select_box" name="select_box">
+            <option value="select_1">選択肢1</option>
+            <option value="select_2">選択肢2</option>
+            <option value="select_3">選択肢3</option>
+        </select>
+        <br />
+        <label for="select_multi">セレクトボックス（複数）</label>
+        <select id="select_multi" name="select_multi" multiple="multiple">
+            <option value="select_1">選択肢1</option>
+            <option value="select_2">選択肢2</option>
+            <option value="select_3">選択肢3</option>
+        </select>
+    </fieldset>
+    
+    <fieldset>
+        <legend>ファイル</legend>
+        <input type="file" id="file_selector" name="file_selector" />
+    </fieldset>
+    
+    <fieldset>
+        <legend>button</legend>
+        <ul>
+        <li><input type="button" id="button_1" name="button_1" value="BUTTON_1" /></li>
+        <li><input type="button" id="button_2" name="button_2" value="BUTTON_2" /></li>
+        <li><input type="button" id="button_cancel" name="button_cancel" value="Cancel" /></li>
+        </ul>
+    </fieldset>
+    
+    <fieldset>
+        <legend>submit</legend>
+        <ul>
+        <li><input type="submit" id="button_submit" name="button_submit" value="SUBMIT" /></li>
+        <li><input type="reset" id="button_reset" name="button_reset" value="RESET" /></li>
+        </ul>
+    </fieldset>
+</form>
+</body>
+</html>
