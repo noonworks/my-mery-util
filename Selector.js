@@ -99,7 +99,7 @@ Noonworks.Selector = function(){
         var org = str_array._arr[i];
         var path = new Noonworks.Path(org);
         var l = pathes_dummy._arr.length;
-        pathes_dummy.push(path.path);
+        pathes_dummy.push(path.path + "\t" + path.line);
         if (l < pathes_dummy._arr.length) {
             this.pathes.push(path);
         }

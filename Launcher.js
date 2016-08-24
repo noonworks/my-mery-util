@@ -19,8 +19,12 @@ Noonworks.Launcher.prototype = {
         return this.fso.createDirRecursive(path);
     },
     
-    openMery: function(path) {
+    openMery: function(path, line) {
         Editor.OpenFile(path, meEncodingNone, meOpenAllowNewWindow);
+        var doc = Editor.ActiveDocument;
+        if (typeof(line) != 'number' || line <= 0) return;
+        doc.Selection.SetActivePoint(mePosLogical , 0, line, false);
+        ScrollY = line;
     },
     
     createWithMery: function(path) {

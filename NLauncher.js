@@ -33,12 +33,13 @@ Noonworks.NLauncher = function(){
         }
         var submenu = this.makePathMenu(pathes[i]);
         var s = pathes[i].isFile ? 'File: ' : 'Dir: ';
+        var l_postfix = pathes[i].line == 0 ? '' : ' (' + pathes[i].line + ')';
         if (pathes[i].possibility === Noonworks.Path.PossibilityCertain) {
-            this.menu.add(s + this.menu.minify(pathes[i].path, this.PATH_MINIFY_LEN),
+            this.menu.add(s + this.menu.minify(pathes[i].path + l_postfix, this.PATH_MINIFY_LEN),
             this._toSubmenu(submenu));
         } else {
             all_pathes_menu.add(
-                s + all_pathes_menu.minify(pathes[i].path, this.PATH_MINIFY_LEN),
+                s + all_pathes_menu.minify(pathes[i].path + l_postfix, this.PATH_MINIFY_LEN),
                 this._toSubmenu(submenu));
         }
     }
@@ -124,7 +125,7 @@ Noonworks.NLauncher.prototype = {
                     function(){ lnc.openAdminCmd(p.path) });
             } else  {
                 menu.add('Meryで開く',
-                    function(){ lnc.openMery(p.path) });
+                    function(){ lnc.openMery(p.path, p.line) });
                 menu.add('関連付けされたプログラムで開く',
                     function(){ lnc.open(p.path) });
             }
