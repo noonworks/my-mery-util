@@ -282,7 +282,7 @@ Noonworks.Path.prototype = {
     _fixInvalidChar: function(str) {
         str = str.replace(Noonworks.Path._sep_regex, '\\');
         if (str.length > 1 && Noonworks.Path._dup_sep_regex.test(str.substring(1))) {
-            return '';
+            return ['', 0];
         }
         var cln_i = 0;
         if (Noonworks.Path._drive_regex.test(str)) {
