@@ -220,6 +220,11 @@ Noonworks.String.prototype.curIndexOf = function(cur_pos, str) {
     cur_pos = (cur_pos < 0) ? this._s.length + cur_pos : cur_pos;
     if (this._s.length + 1 == cur_pos) return this._s.lastIndexOf(str);
     if (this._s.length < cur_pos || cur_pos < 0) return -1;
+    // left of cursor (if selection whole word)
+    if (cur_pos > str.length &&
+        this._s.substring(cur_pos - str.length - 1, cur_pos - 1) == str) {
+        return cur_pos - str.length - 1;
+    }
     var search_index = (cur_pos <= str.length) ? 0 : cur_pos - str.length;
     while (true) {
         var i = this._s.indexOf(str, search_index);
