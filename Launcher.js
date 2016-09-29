@@ -8,6 +8,14 @@ Noonworks.Launcher = function(){
     this.app = new ActiveXObject('Shell.Application');
 };
 
+Noonworks.Launcher.camel2snake = function(str) {
+  return str.replace(/([A-Z])/g, function(s) { return '_' + s.charAt(0).toLowerCase(); });
+}
+
+Noonworks.Launcher.snake2camel = function(str) {
+  return str.replace(/_./g, function(s) { return s.charAt(1).toUpperCase(); });
+}
+
 Noonworks.Launcher.prototype = {
     makeClosure: function(func, args) {
         return function(){
@@ -108,6 +116,14 @@ Noonworks.Launcher.prototype = {
     
     pasteClipboard: function(i_start, i_end, posY_l) {
         this.paste(i_start, i_end, posY_l, ClipboardData.getData());
+    },
+    
+    toSnakeCase: function(i_start, i_end, posY_l, str) {
+        this.paste(i_start, i_end, posY_l, Noonworks.Launcher.camel2snake(str));
+    },
+    
+    toCamelCase: function(i_start, i_end, posY_l, str) {
+        this.paste(i_start, i_end, posY_l, Noonworks.Launcher.snake2camel(str));
     },
     
     execPlugin: function(plugin_id) {

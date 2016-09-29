@@ -81,6 +81,9 @@ Noonworks.NLauncher.prototype = {
         }
         menu.add('コピー', function(){ lnc.copyToClipboard(word) });
         menu.addSeparator();
+        menu.add('to_snake_case', function(){ lnc.toSnakeCase(i_start, i_end, posY_l, word) });
+        menu.add('toCamelCase', function(){ lnc.toCamelCase(i_start, i_end, posY_l, word) });
+        menu.addSeparator();
         menu.add('前を検索', function(){ lnc.search(word, false) });
         menu.add('次を検索', function(){ lnc.search(word, true) });
         menu.add('ファイルから検索', function(){
