@@ -52,9 +52,13 @@ Noonworks.Launcher.prototype = {
         this.app.ShellExecute('cmd.exe', '/k cd /d "' + path + '"', 'uac', 'runas', 1);
     },
     
-    openExplorer: function(path) {
+    openExplorer: function(path, select) {
         path = path || Document.Path || this.shell.SpecialFolders('Desktop');
-        this.shell.Run('explorer.exe "' + path + '"');
+        if (! select) {
+            this.shell.Run('explorer.exe "' + path + '"');
+        } else {
+            this.shell.Run('explorer.exe /select,"' + select + '"');
+        }
     },
     
     openUrl: function(url) {

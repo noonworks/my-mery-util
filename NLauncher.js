@@ -166,7 +166,7 @@ Noonworks.NLauncher.prototype = {
         // open parent folder if exists
         if (p.parentExists) {
             menu.add('親フォルダをエクスプローラで開く',
-                function(){ lnc.openExplorer(p.parent) });
+                function(){ lnc.openExplorer(p.parent, p.path) });
             menu.add('親フォルダでコマンドプロンプトを開く',
                 function(){ lnc.openCmd(p.parent) });
             menu.add('親フォルダで管理者コマンドプロンプトを開く',
